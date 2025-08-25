@@ -1,0 +1,368 @@
+<html>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Account Detail</title>
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #f5f5f5;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .menu a {
+    text-decoration: none;
+    color: #333;
+  }
+
+  .menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .menu {
+    display: flex !important;
+    flex-direction: row;
+    position: static;
+    box-shadow: none;
+  }
+
+  .menu li {
+    margin-left: 15px;
+    text-align: left;
+  }
+
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    z-index: 1;
+    margin-top: 5px;
+    text-align: left;
+  }
+
+  .dropdown-content a {
+    color: black;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+  }
+
+  .dropdown-content a:hover {
+    background-color: #f1f1f1;
+  }
+
+  .dropdown-content.active {
+    display: block;
+  }
+
+  .dropdown-content {
+    position: absolute;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+  }
+
+  .container {
+    width: 100%;
+    height: 100vh;
+  }
+
+  .content {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+  }
+
+  label {
+    display: block;
+    margin: 10px 0 5px;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 8px;
+
+    background-color: white;
+    color: black;
+    margin-bottom: 20px;
+  }
+
+  .address-inputs input[type="text"] {
+    width: calc(50% - 12px);
+    margin-right: 24px;
+  }
+
+  .address-inputs {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: red;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .separator {
+    border-bottom: 2px solid black;
+    margin: 20px 0;
+  }
+
+  .save-button {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+
+  .save-button:hover {
+    background-color: #585858;
+  }
+
+  input:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    border: 1px solid #ced4da;
+  }
+
+  @media (max-width: 800px) {
+    body {
+      flex-direction: column;
+      display: flex;
+    }
+
+    header {
+      padding: 10px;
+    }
+
+    .menu-toggle {
+      display: block;
+    }
+
+    .menu {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 100%;
+    }
+
+    .menu li {
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .content {
+    width:90%;
+  }
+  }
+</style>
+<header>
+  <div>
+    <a href="ClientPsychologicalResult.html"><img src="img/logo.png" width="100px" alt="Share&Talk Logo" /></a>
+  </div>
+  <div>
+    <div class="dropdown">
+      <button id="dropdownButton" style="margin-right: 20px">
+        <img src="img/person-fill.svg" width="15px" alt="Account Icon" />
+        Manage
+        <div class="dropdown-content" id="dropdownContent">
+          <a href="StaffDashboard.html">Dashboard</a>
+          <a href="StaffAccountDetail.html">Accounts</a>
+          <a href="ClientManage.html">User Manage</a>
+          <a href="ClientPsychologicalResult.html">Psychological Test Result</a>
+          <a href="ChatroomMessagesaManage.html">Chatroom Messages</a>
+        </div>
+    </div>
+    <button id="logoutButton"><img src="img/box-arrow-right.svg" width="15px" /> Logout</a>
+    </button>
+  </div>
+</header>
+
+<script>
+  
+  const dropdownButton = document.getElementById("dropdownButton");
+  const dropdownContent = document.getElementById("dropdownContent");
+
+  dropdownButton.addEventListener("click", () => {
+    
+    dropdownContent.classList.toggle("active");
+  });
+
+  
+  window.addEventListener("click", (event) => {
+    if (!event.target.closest(".dropdown")) {
+      dropdownContent.classList.remove("active");
+    }
+  });
+
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    const response = await fetch("/api/logout", { method: "POST" });
+    if (response.ok) {
+      window.location.href = "../client/index_nonLogin.html";
+    } else {
+      alert("Logout failed!");
+    }
+  });
+</script>
+
+<body>
+  <div class="container">
+    <div class="content">
+      <h3>Login Account</h3>
+      <div>
+        <input type="text" id="email" disabled />
+      </div>
+
+      <div class="separator"></div>
+
+      <h2>Edit Password</h2>
+      <label for="current-password">Current Password</label>
+      <input type="password" id="current-password" />
+
+      <label for="new-password">New Password</label>
+      <input type="password" id="new-password" />
+
+      <label for="reenter-password">Re-Enter New Password</label>
+      <input type="password" id="reenter-password" />
+
+      <button class="save-button" onclick="StaffupdatePassword()">Save</button>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("/api/staffData") 
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("User not logged in");
+          }
+          return response.json();
+        })
+        .then((staff) => {
+          console.log(staff); 
+
+          const emailField = document.querySelector("#email");
+          const phoneField = document.querySelector("#phone");
+          const roomField = document.querySelector("#room");
+          const floorField = document.querySelector("#floor");
+          const estateField = document.querySelector("#estate");
+          const streetField = document.querySelector("#street");
+          const fullNameField = document.querySelector("#fullName");
+
+          if (emailField)
+            emailField.value = staff.email || "No email provided";
+          if (phoneField)
+            phoneField.value = staff.phone || "No phone number provided";
+          if (fullNameField)
+            fullNameField.value = staff.username || "No name provided";
+
+          if (roomField) roomField.value = staff.room || "";
+          if (floorField) floorField.value = staff.floor || "";
+          if (estateField) estateField.value = staff.estate || "";
+          if (streetField) streetField.value = staff.street || "";
+        })
+        .catch((error) => {
+          alert("Error fetching staff data: " + error.message);
+        });
+    });
+
+    function StaffupdateAddress() {
+      const room = document.getElementById("room").value;
+      const floor = document.getElementById("floor").value;
+      const estate = document.getElementById("estate").value;
+      const street = document.getElementById("street").value;
+
+      fetch("/api/StaffupdateAddress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ room, floor, estate, street }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          alert(data.message);
+        })
+        .catch((error) => {
+          console.error("Error updating address:", error);
+        });
+    }
+
+    function StaffupdatePassword() {
+      const currentPassword =
+        document.getElementById("current-password").value;
+      const newPassword = document.getElementById("new-password").value;
+      const reenterPassword =
+        document.getElementById("reenter-password").value;
+
+      fetch("/api/StaffupdatePassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+          reenterPassword,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          alert(data.message);
+        })
+        .catch((error) => {
+          console.error("Error updating password:", error);
+        });
+    }
+  </script>
+
+</body>
+
+</html>
