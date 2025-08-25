@@ -1,0 +1,507 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registration</title>
+</head>
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #eeeeee;
+    color: #333;
+  }
+
+  .register-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .avatar-upload {
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+    cursor: pointer;
+    background-color: #f7f7f7;
+  }
+
+  .avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .upload-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    background: #000;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(25%, 25%);
+  }
+
+  form {
+    margin-top: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
+  .phone-input-wrapper,
+  .code-input-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  .phone-input-wrapper select {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+    background: #fff;
+  }
+
+  .phone-input-wrapper input {
+    flex: 1;
+  }
+
+  .code-input-wrapper {
+    display: flex;
+    gap: 10px;
+  }
+
+  .code-input-wrapper input {
+    flex: 2;
+  }
+
+  .code-input-wrapper .get-code-btn {
+    flex: 1;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .code-input-wrapper .get-code-btn:hover {
+    background-color: #0056b3;
+  }
+
+  #code-group {
+    display: none;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .submit-btn:hover {
+    background-color: #218838;
+  }
+
+  .check-icon {
+    margin-left: 10px;
+    color: green;
+    font-size: 18px;
+    display: none;
+  }
+
+  button.get-code-btn {
+    padding: 10px;
+    background: #000;
+    color: #fff;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  button.get-code-btn:hover {
+    background: #444;
+  }
+
+  button.submit-btn {
+    width: 100%;
+    padding: 10px;
+    background: #000;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  button.submit-btn:hover {
+    background: #444;
+  }
+
+  span {
+    color: red;
+  }
+
+  .terms {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .terms input[type="checkbox"] {
+    margin-right: 5px;
+  }
+
+  .privacy-policy {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 15px;
+  }
+
+  .privacy-policy a {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .privacy-policy a:hover {
+    text-decoration: underline;
+  }
+
+  .password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .password-input-wrapper input {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .toggle-password-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+  }
+
+</style>
+
+<body>
+  <div class="register-container">
+    <form action="/api/register" method="post" enctype="multipart/form-data" class="register-form">
+      <h1>Share&Talk Registration</h1>
+      <div class="avatar-upload">
+        <label for="avatar-input">
+          <div class="avatar-preview">
+            <img id="avatar-image" src="" alt="Avatar" />
+            <div class="upload-icon">+</div>
+          </div>
+        </label>
+        <input type="file" id="avatar-input" name="avatar" accept="image/*" style="display: none" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Login Email <span>*</span></label>
+        <input type="email" id="email" name="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="username">Name <span>*</span></label>
+        <input type="text" id="username" name="username" required />
+      </div>
+
+      <div class="form-group phone-group">
+        <label for="phone-number">Phone <span>*</span></label>
+        <div class="phone-input-wrapper">
+          <select id="country-code" name="country-code">
+            <option value="+852" selected>+852</option>
+            <option value="+86">+86</option>
+            <option value="+853">+853</option>
+          </select>
+          <input type="tel" id="phone-number" name="phoneNumber" required />
+          <span id="phone-check" class="check-icon">✔</span>
+        </div>
+      </div>
+
+      <div class="form-group code-group" id="code-group">
+        <label for="verification-code">Verification Code <span>*</span></label>
+        <div class="code-input-wrapper">
+          <input type="text" id="verification-code" name="verification-code" required />
+          <button type="button" class="get-code-btn" id="get-code-btn">
+            Get Code
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group password-group">
+        <label for="password">Password <span>*</span></label>
+        <div class="password-input-wrapper">
+          <input type="password" id="password" name="password" required />
+          <button type="button" id="toggle-password" class="toggle-password-btn"></button>
+        </div>
+      </div>
+
+      <div class="form-group confirm-password-group">
+        <label for="confirm-password">Confirm Password <span>*</span></label>
+        <div class="password-input-wrapper">
+          <input type="password" id="confirm-password" name="confirm-password" required />
+          <button type="button" id="toggle-confirm-password" class="toggle-password-btn"></button>
+        </div>
+      </div>
+
+      <script>
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirm-password");
+        const registerForm = document.querySelector(".register-form");
+        const togglePassword = document.getElementById("toggle-password");
+        const toggleConfirmPassword = document.getElementById("toggle-confirm-password");
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+togglePassword.addEventListener("click", () => {
+  toggleVisibility(passwordInput, togglePassword);
+});
+
+toggleConfirmPassword.addEventListener("click", () => {
+  toggleVisibility(confirmPasswordInput, toggleConfirmPassword);
+});
+
+function toggleVisibility(inputField, toggleButton) {
+  const type = inputField.type === "password" ? "text" : "password";
+  inputField.type = type;
+  toggleButton.textContent = type === "password" ? "show" : "hide";
+}
+
+passwordInput.addEventListener("input", () => {
+  const passwordValue = passwordInput.value;
+  const passwordMessage = document.getElementById("password-message");
+  
+  if (!passwordRegex.test(passwordValue)) {
+    if (!passwordMessage) {
+      const message = document.createElement("div");
+      message.id = "password-message";
+      message.style.color = "#333";
+        message.style.fontSize = "12px";
+        message.textContent = "*Note: At least 8 characters, 1 uppercase letter, 1 lowercase letter and 1 number.";
+      document.querySelector(".password-group").appendChild(message);
+    }
+  } else {
+    const message = document.getElementById("password-message");
+    if (message) {
+      message.remove();
+    }
+  }
+});
+
+document.addEventListener("click", (event) => {
+  if (!passwordInput.contains(event.target)) {
+    const passwordValue = passwordInput.value;
+    const passwordMessage = document.getElementById("password-message");
+
+    if (!passwordRegex.test(passwordValue)) {
+      if (!passwordMessage) {
+        const message = document.createElement("div");
+        message.id = "password-message";
+        message.style.color = "#333";
+        message.style.fontSize = "12px";
+        message.textContent = "*Note: At least 8 characters, 1 uppercase letter, 1 lowercase letter and 1 number.";
+        document.querySelector(".password-group").appendChild(message);
+      }
+    } else {
+      if (passwordMessage) {
+        passwordMessage.remove();
+      }
+    }
+  }
+});
+
+confirmPasswordInput.addEventListener("input", () => {
+  const confirmPasswordValue = confirmPasswordInput.value;
+  if (confirmPasswordValue !== passwordInput.value) {
+    let confirmMessage = document.getElementById("confirm-password-message");
+    if (!confirmMessage) {
+      confirmMessage = document.createElement("div");
+      confirmMessage.id = "confirm-password-message";
+      confirmMessage.style.color = "#333";
+      confirmMessage.style.fontSize = "12px";
+      confirmMessage.textContent = "Password inputs are inconsistent.";
+      document.querySelector(".confirm-password-group").appendChild(confirmMessage);
+    }
+  } else {
+    const confirmMessage = document.getElementById("confirm-password-message");
+    if (confirmMessage) {
+      confirmMessage.remove();
+    }
+  }
+});
+
+        registerForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const passwordValue = passwordInput.value;
+          const confirmPasswordValue = confirmPasswordInput.value;
+
+          if (!passwordRegex.test(passwordValue)) {
+            e.preventDefault();
+            alert("At least 8 characters, 1 uppercase letter, 1 lowercase letter and 1 number.");
+            return;
+          }
+
+          if (confirmPasswordValue !== passwordValue) {
+            e.preventDefault();
+            alert("Password inputs are inconsistent.");
+            return;
+          }
+          const formData = new FormData(registerForm);
+
+          try {
+            const response = await fetch("/api/register", {
+              method: "POST",
+              body: formData,
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+              alert(result.message);
+              window.location.href = "login.html";
+            } else {
+              alert(result.message || "Registration failed");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("Please try again later.");
+          }
+        });
+
+const phoneNumberInput = document.getElementById("phone-number");
+    const codeGroup = document.getElementById("code-group");
+    const avatarInput = document.getElementById("avatar-input");
+    const avatarImage = document.getElementById("avatar-image");
+    const getCodeBtn = document.getElementById("get-code-btn");
+
+    avatarInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          avatarImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    phoneNumberInput.addEventListener("input", () => {
+
+const phoneValue = phoneNumberInput.value.trim();
+
+if (phoneValue.length >= 8 && /^\d+$/.test(phoneValue)) {
+  codeGroup.style.display = "block";
+} else {
+  codeGroup.style.display = "none";
+}
+});
+
+    getCodeBtn.addEventListener("click", () => {
+      alert("The verification code has been sent to your mobile number.");
+      let countdown = 60;
+      getCodeBtn.disabled = true;
+      getCodeBtn.textContent = `${countdown} s`;
+
+      const timer = setInterval(() => {
+        countdown--;
+        getCodeBtn.textContent = `${countdown} s`;
+
+        if (countdown <= 0) {
+          clearInterval(timer);
+          getCodeBtn.disabled = false;
+          getCodeBtn.textContent = "GET CODE"; 
+        }
+      }, 1000);
+    });
+
+      </script>
+
+      <div class="form-group terms">
+        <input type="checkbox" id="agree-marketing" name="agree-marketing" required />
+        <label for="agree-marketing" style="font-size: 11px; margin-top: 5px">
+          I have read and accept Share&Talk
+          <a href="privacy.html" target="_blank">Terms of Use and Privacy Policy.</a></label>
+      </div>
+
+      <button type="submit" class="submit-btn" style="margin-bottom: 10px; margin-top: 10px">
+        Register
+      </button>
+      <button type="submit" class="submit-btn" onclick="history.back()">
+        Back
+      </button>
+    </form>
+  </div>
+</body>
+</html>

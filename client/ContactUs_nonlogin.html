@@ -1,0 +1,433 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background-color: #f5f5f5;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .sidebar {
+      width: 20%;
+      height: 100%;
+      float: left;
+      background-color: #f9f9f9;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .sidebar-toggle {
+      display: none;
+    }
+
+    .sidebar h3 {
+      margin: 10px 0;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar ul li {
+      margin: 5px 0;
+      cursor: pointer;
+    }
+
+    .content {
+      width: 75%;
+      float: right;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .clear {
+      clear: both;
+    }
+
+    footer {
+      bottom: 0;
+      text-align: center;
+      font-size: 10px;
+      background-color: #333;
+      color: white;
+      padding: 10px;
+    }
+
+    .banner {
+      width: 100%;
+      text-align: center;
+      background-image: url("img/bg.jpg");
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      color: white;
+      padding: 50px;
+    }
+
+    .banner .content {
+      font-size: 20px;
+      color: white;
+      opacity: 0;
+      white-space: nowrap;
+      position: absolute;
+      transition: opacity 2s ease;
+      text-align: center;
+    }
+
+    #text1.visible {
+      opacity: 1;
+    }
+
+    #text2 {
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+
+    #text2.visible {
+      opacity: 1;
+    }
+
+    #text2.fade-out {
+      opacity: 0;
+    }
+
+    #text3 {
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+
+    #text3.visible {
+      opacity: 1;
+    }
+
+    .text-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .text-container .content {
+      margin: 0 10px;
+    }
+
+    .contact-info {
+      background-size: cover;
+      background-position: center;
+      color: #333;
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .contact-info div {
+      flex: 1 1 300px;
+      max-width: 300px;
+      margin: 10px;
+      text-align: left;
+    }
+
+    .contact-info h3 {
+      margin-top: 0;
+    }
+
+    form input,
+    form textarea {
+      width: 50%;
+      padding: 15px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 3px;
+      background-color: #f5f5f5;
+    }
+
+    form button {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .custom-alert {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #dc3545;
+      padding: 20px 40px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 1000;
+      display: none;
+      animation: slideIn 0.5s ease-out forwards;
+    }
+
+    @media screen and (max-width: 800px) {
+      body {
+        flex-direction: column;
+        display: flex;
+      }
+
+      header {
+        padding: 10px;
+      }
+
+      .banner {
+        width: auto;
+      }
+
+      footer {
+        width: 100%;
+        margin-top: auto;
+      }
+
+      .sidebar {
+        align-self: flex-start;
+        width: 100%;
+        display: none;
+        top: 31%;
+        left: 0;
+        background-color: #f9f9f9;
+        z-index: 9999;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .sidebar-toggle {
+        display: block;
+        padding: 10px;
+        background-color: #f5f5f5;
+        text-align: left;
+        cursor: pointer;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .sidebar.active {
+        display: block;
+        height: 450px;
+      }
+
+      .content {
+        width: 100%;
+        padding: 10px;
+        flex-grow: 1;
+        text-align: center;
+      }
+
+      .contact-info {
+        background-size: cover;
+        background-position: center;
+        color: #333;
+        padding: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .contact-info div {
+        flex: 1 1 300px;
+        max-width: 300px;
+        margin: 10px;
+        text-align: left;
+      }
+
+      .contact-info h3 {
+        margin-top: 0;
+      }
+
+      form input,
+      form textarea {
+        width: 80%;
+        padding: 15px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 3px;
+        background-color: #f5f5f5;
+      }
+
+      form button {
+        background-color: #333;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div>
+      <a href="index_Login.html"><img src="img/logo.png" width="100px" alt="Share&Talk Logo" /></a>
+    </div>
+    <div>
+      <button>
+        <a href="../staff/stafflogin.html"><img src="img/person-fill.svg" width="15px" /> Staff Login</a>
+      </button>
+      <button>
+        <a href="login.html"><img src="img/many_people.png" width="15px" /> Login /
+          Register</a>
+      </button>
+    </div>
+  </header>
+
+  <div class="banner">
+    <div class="text-container">
+      <div id="text1" class="content" style="padding-right: 180px">
+        If You...
+      </div>
+      <div id="text2" class="content" style="padding-left: 100px">
+        Feeling Depressed
+      </div>
+      <div id="text3" class="content" style="padding-left: 50px">
+        Feeling Lost
+      </div>
+    </div>
+    <p style="padding-top: 20px; font-size: 18px;">
+      Let everyone accompany and support you on your mental health journey.
+    </p>
+  </div>
+
+  <script>
+    const text1 = document.getElementById("text1");
+    const text2 = document.getElementById("text2");
+    const text3 = document.getElementById("text3");
+
+    text1.classList.add("visible");
+
+    let activeIndex = 0;
+    const elements = [text2, text3];
+
+    function fadeInOut() {
+      elements.forEach((el) => (el.style.opacity = 0));
+      elements[activeIndex].style.opacity = 1;
+      activeIndex = (activeIndex + 1) % elements.length;
+      setTimeout(fadeInOut, 4000);
+    }
+    fadeInOut();
+  </script>
+
+  <div id="custom-alert" class="custom-alert" style="display: none">Please Login Access This Feature.</div>
+  <div class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</div>
+
+  <div class="sidebar" id="sidebar">
+    <h3>
+      <a href="index_nonLogin.html"><img src="img/home.svg" width="15px;" /> Home</a>
+    </h3>
+    <br />
+    <h3>
+      <a href="#" onclick="showLoginAlert()" style="color: #aaa; cursor: not-allowed"><img src="img/chat-left-text.svg"
+          width="15px;" /> Online Chat</a>
+    </h3>
+    <br />
+    <h3>
+      <a href="#" onclick="showLoginAlert()" style="color: #aaa; cursor: not-allowed"><img src="img/heart-fill.svg"
+          width="15px;" /> Psychological Test</a>
+    </h3>
+    <br />
+    <h3>
+      <a href="#" onclick="showLoginAlert()" style="color: #aaa; cursor: not-allowed"><img src="img/hand-index.svg"
+          width="15px;" /> Mini Game</a>
+    </h3>
+    <br />
+    <h3>
+      <a href="CommunityPost_nonlogin.html"><img src="img/list-ul.svg" width="15px;" /> Community Post</a>
+    </h3>
+    <br />
+    <h3><a href="AboutUs_nonlogin.html"><img src="img/aboutus.png" width="15px;" /> About Us</a></h3>
+    <br />
+    <h3><a href="ContactUs_nonlogin.html"><img src="img/internet.png" width="15px;" /> Contact Us</a></h3>
+  </div>
+
+  <div class="content">
+    <h1>Contact Information</h1>
+    <br>
+    <p><strong>Phone: </strong>+852 9876 5432</p>
+    <br>
+    <p><strong>Address: </strong>Hong Kong Street Chai Wan Building</p>
+    <br>
+    <p><strong>Email: </strong>info@shareandtalk.com</p>
+    <br>
+    <br>
+    <h1>Message Us</h1>
+    <br>
+    <form id="form">
+      <input type="text" id="name" placeholder="Name" /><br />
+      <input type="email" id="email" placeholder="Email Address" /><br />
+      <textarea id="message" placeholder="Message"></textarea><br />
+      <button id="sendButton" type="submit">Send</button>
+    </form>
+  </div>
+
+  <div class="clear"></div>
+
+  <script>
+
+    function showLoginAlert() {
+      const alertBox = document.getElementById("custom-alert");
+      alertBox.style.display = "block";
+      alertBox.classList.remove("slide-out");
+      alertBox.classList.add("slide-in");
+
+      setTimeout(() => {
+        alertBox.classList.remove("slide-in");
+        alertBox.classList.add("slide-out");
+        setTimeout(() => {
+          alertBox.style.display = "none";
+        }, 500);
+      }, 3000);
+    }
+
+    document.getElementById("form").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      let name = document.getElementById("name").value.trim();
+      let email = document.getElementById("email").value.trim();
+      let message = document.getElementById("message").value.trim();
+
+      if (name === "" || email === "" || message === "") {
+        alert("Please Fill in All Fields.");
+        return;
+      }
+
+      alert("Message Sent Successfully. We Will Reply You By Email Later.");
+    });
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("active");
+    }
+  </script>
+</body>
+<footer>
+  <p>© 2025 Share&Talk. All rights reserved.</p>
+</footer>
+
+</html>
