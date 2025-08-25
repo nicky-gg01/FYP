@@ -1,0 +1,968 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="modal_style.css" />
+  <title>Online Group Chat</title>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    * {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      flex-direction: row;
+    }
+
+    .sidebar {
+      width: 30%;
+      background-color: #f5f5f5;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      padding: 20px;
+      transition: width 0.3s ease;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 0px;
+    }
+
+    .create-chatroom {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .create-chatroom button {
+      font-size: 12px;
+      margin-top: 20px;
+      border: none;
+      background-color: transparent;
+    }
+
+    .search-bar {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .tag.family {
+      background-color: #7c90db;
+    }
+
+    .tag.personal {
+      background-color: #70c1b3;
+    }
+
+    .tag.work {
+      background-color: #fcbf49;
+    }
+
+    .tag.emotion {
+      background-color: #ee6c4d;
+    }
+
+    .tag.gender {
+      background-color: #ff6f91;
+    }
+
+    .tag.all {
+      background-color: #b0b0b0;
+    }
+
+    .chat-item {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    .chat-item h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .chat-item .meta {
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chatroom {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      visibility: hidden;
+    }
+
+    .chatroom-header {
+      padding: 20px;
+      background-color: #eeeeee;
+      font-size: 18px;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message-content {
+      max-width: 60%;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .message.user .message-content {
+      background-color: #d4f1f4;
+      color: #333;
+    }
+
+    .message.other .message-content {
+      background-color: #ffd6a5;
+      color: #333;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 10px 20px;
+      border-top: 1px solid #ddd;
+      align-items: center;
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+
+    .input-area button {
+      padding: 10px 20px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .input-area button:hover {
+      background-color: #5a5959;
+    }
+
+    .image-preview-container {
+      position: relative;
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .image-preview {
+      width: 100%;
+      max-width: 200px;
+      max-height: 200px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(255, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      line-height: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      position: relative;
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    .close {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      position: absolute;
+      top: 5px;
+      right: 10px;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #close-chatroom {
+      display: block;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      margin-right: 20px;
+      margin-top: 10px;
+    }
+
+    #submitbutton {
+      background-color: #333;
+      color: white;
+    }
+
+    #submitbutton:hover {
+      background-color: #5a5959;
+    }
+
+    @media (max-width: 800px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        box-sizing: border-box;
+      }
+
+      .chatroom {
+        width: 100%;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        padding: 10px;
+        box-sizing: border-box;
+        z-index: 1;
+      }
+
+      .chatroom .messages {
+        padding: 10px;
+        max-height: calc(100% - 50px);
+        overflow-y: auto;
+        box-sizing: border-box;
+      }
+
+      #close-chatroom {
+        display: block;
+      }
+
+      .create-chatroom button {
+        margin-left: 10px;
+      }
+
+      .chat-item {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .tag {
+        font-size: 10px;
+        margin-right: 3px;
+        margin-bottom: 3px;
+      }
+
+      .messages {
+        flex: 1;
+        padding: 10px;
+        background-color: #f9f9f9;
+        overflow-y: scroll;
+      }
+
+      .input-area {
+        padding: 15px;
+        border-top: 1px solid #ddd;
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #fff;
+        z-index: 10;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .input-area input {
+        width: 100%;
+      }
+
+      .button-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+      }
+
+      .input-area button {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .input-area button:hover {
+        background-color: #5a5959;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="chatroomModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModalBtn">&times;</span>
+      <h2>Create New Chatroom</h2>
+      <form id="chatroomForm">
+        <label for="chatroomName">Chatroom Name:</label>
+        <input type="text" id="chatroomName" name="chatroomName" required />
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+          <option value="family">Family</option>
+          <option value="personal">Personal Emotions</option>
+          <option value="work">Workplace Stress</option>
+          <option value="emotion">Love and Marriage</option>
+          <option value="gender">Sexual</option>
+        </select>
+        <button type="submit" id="submitbutton">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="create-chatroom">
+      <h2>Chatroom Topic</h2>
+      <button id="openModalBtn">+ Create</button>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" placeholder="Search..." id="search-input" />
+    </div>
+
+    <div style="margin-bottom: 20px">
+      <div class="tag all" onclick="filterChatrooms('all')">All</div>
+      <div class="tag family" onclick="filterChatrooms('family')">
+        Family
+      </div>
+      <div class="tag personal" onclick="filterChatrooms('personal')">
+        Personal Emotions
+      </div>
+      <div class="tag work" onclick="filterChatrooms('work')">Workplace Stress</div>
+      <div class="tag emotion" onclick="filterChatrooms('emotion')">
+        Love and Marriage
+      </div>
+      <div class="tag gender" onclick="filterChatrooms('gender')">
+        Sexual
+      </div>
+    </div>
+
+    <div id="chatroom-list">
+    </div>
+
+  </div>
+
+  <div class="chatroom" id="chatroom">
+    <button id="close-chatroom" onclick="closeChatroom()">×</button>
+    <div class="chatroom-header" id="chatroom-header"></div>
+    <div class="messages" id="messages"></div>
+    <p id="typing-status" style="display: none;">User is typing...</p>
+    <div class="input-area">
+      <input type="text" id="message-input" placeholder="Input You Message..." />
+
+      <div class="button-group">
+        <button class="voice-btn" id="voice-button" onclick="toggleVoiceRecognition()">
+          Voice input
+        </button>
+        <input type="file" id="image-input" class="image-btn" onchange="handleImageUpload(event)" accept="image/*"
+          style="display: none" />
+        <button class="image-btn" onclick="document.getElementById('image-input').click()">
+          Image
+        </button>
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+
+    <div id="image-preview-container"></div>
+  </div>
+  <script>
+    const socket = io("http://localhost:3000");
+    const typingStatus = document.getElementById("typing-status");
+    socket.on("connect", () => {
+      console.log("Connected to the server");
+    });
+
+    const messageInput = document.getElementById("message-input");
+    messageInput.addEventListener("input", () => {
+      socket.emit("typing", { isTyping: true, userID: loggedInUser.userID });
+
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        socket.emit("typing", { isTyping: false, userID: loggedInUser.userID });
+      }, 1000);
+    });
+
+    let typingTimeout;
+
+    socket.on("typingStatus", (data) => {
+      if (data.userID !== loggedInUser.userID) {
+        if (data.isTyping) {
+          if (data.userID === "AI") {
+            typingStatus.textContent = "User is typing...";
+          } else {
+            typingStatus.textContent = "User is typing...";
+          }
+          typingStatus.style.display = "block";
+        } else {
+          typingStatus.style.display = "none";
+        }
+      }
+    });
+
+    let recognition;
+    let isRecognizing = false;
+
+    if (
+      "SpeechRecognition" in window ||
+      "webkitSpeechRecognition" in window
+    ) {
+      recognition = new (window.SpeechRecognition ||
+        window.webkitSpeechRecognition)();
+      recognition.lang = "zh-TW";
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = function (event) {
+        let transcript = "";
+
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            transcript += event.results[i][0].transcript;
+          } else {
+            transcript += event.results[i][0].transcript;
+          }
+        }
+
+        document.querySelector(".input-area input").value = transcript;
+      };
+
+      recognition.onerror = function (event) {
+        console.error("Recognition error:", event.error);
+      };
+    } else {
+      alert("Recognition not support in your browser.");
+    }
+
+    function toggleVoiceRecognition() {
+      const voiceButton = document.getElementById("voice-button");
+
+      if (isRecognizing) {
+        recognition.stop();
+        voiceButton.textContent = "Voice input";
+        isRecognizing = false;
+      } else {
+        recognition.start();
+        voiceButton.textContent = "Stop voice";
+        isRecognizing = true;
+      }
+    }
+    document
+      .getElementById("search-input")
+      .addEventListener("input", function () {
+        const searchQuery = this.value.toLowerCase();
+        const chatItems = document.querySelectorAll(".chat-item");
+
+        chatItems.forEach((item) => {
+          const title = item
+            .querySelector(".meta span")
+            .textContent.toLowerCase();
+          if (title.includes(searchQuery)) {
+            item.style.display = "block";
+          } else {
+            item.style.display = "none";
+          }
+        });
+      });
+
+    function formatTimeDifference(createdAt) {
+      const now = new Date();
+      const createdDate = new Date(createdAt);
+      const diffInSeconds = Math.floor((now - createdDate) / 1000);
+      const diffInMinutes = Math.floor(diffInSeconds / 60);
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      const diffInDays = Math.floor(diffInHours / 24);
+
+      if (diffInSeconds < 60) {
+        return "just created";
+      } else if (diffInMinutes < 60) {
+        return `${diffInMinutes} min before`;
+      } else if (diffInHours < 24) {
+        return `${diffInHours} hour before`;
+      } else {
+        return `${diffInDays} day before`;
+      }
+    }
+
+    document.getElementById("openModalBtn").onclick = function () {
+      document.getElementById("chatroomModal").style.display = "block";
+    };
+
+    document.getElementById("closeModalBtn").onclick = function () {
+      document.getElementById("chatroomModal").style.display = "none";
+    };
+
+    window.onclick = function (event) {
+      if (event.target == document.getElementById("chatroomModal")) {
+        document.getElementById("chatroomModal").style.display = "none";
+      }
+    };
+
+    document.getElementById("chatroomForm").onsubmit = function (event) {
+      event.preventDefault();
+
+      const chatroomName = document.getElementById("chatroomName").value;
+      const category = document.getElementById("category").value;
+
+      if (chatroomName && category) {
+        fetch("/create-chatroom", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: chatroomName, category: category }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            alert(data.message);
+            document.getElementById("chatroomModal").style.display = "none";
+          })
+          .catch((error) => {
+            console.error("Error creating chatroom:", error);
+            alert("Error creating chatroom");
+          });
+      }
+    };
+    document.querySelectorAll(".chatroom-item").forEach((item) => {
+      item.addEventListener("click", function () {
+        const chatroomId = item.getAttribute("data-chatroom-id");
+        displayChatroom(chatroomId);
+      });
+    });
+
+    let loggedInUser = null;
+
+    async function fetchUserData() {
+      try {
+        const response = await fetch("/api/userData");
+        const user = await response.json();
+        loggedInUser = user;
+        console.log("Fetched user: ", loggedInUser);
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
+    }
+
+    fetchUserData();
+
+    if (!loggedInUser) {
+      const savedUser = localStorage.getItem("loggedInUser");
+      if (savedUser) {
+        loggedInUser = JSON.parse(savedUser);
+        console.log("Retrieved from localStorage: ", loggedInUser);
+      }
+    }
+    async function filterChatrooms(category) {
+      const chatroomList = document.getElementById("chatroom-list");
+      chatroomList.innerHTML = "Loading...";
+
+      try {
+        const response = await fetch(`/get-chatrooms?category=${category}`);
+        const data = await response.json();
+
+        chatroomList.innerHTML = "";
+        if (data.chatrooms && data.chatrooms.length > 0) {
+          data.chatrooms.forEach((chatroom) => {
+            const chatroomDiv = document.createElement("div");
+            chatroomDiv.classList.add("chat-item");
+            chatroomDiv.innerHTML = `
+                    <div class="meta">
+                      <span>${chatroom.chatroomName}</span>
+                    </div>
+                  `;
+            chatroomDiv.onclick = function () {
+              currentChatroomId = chatroom.chatroomID;
+              displayChatroom(chatroom.chatroomID);
+            };
+            chatroomList.appendChild(chatroomDiv);
+          });
+        } else {
+          chatroomList.innerHTML = " ";
+        }
+      } catch (error) {
+        console.error("Error fetching chatrooms:", error);
+        chatroomList.innerHTML = "Error loading chatrooms.";
+      }
+    }
+    window.onload = function () {
+      filterChatrooms('all');
+    };
+
+    function displayChatroom(chatroomId) {
+      document.getElementById("chatroom").style.visibility = "visible";
+      fetch(`/get-chatroom-data/${chatroomId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("chatroom-header").innerHTML =
+            data.chatroomName;
+
+          let messagesHTML = "";
+          if (Array.isArray(data.messages)) {
+            data.messages.forEach((message) => {
+              let messageClass = "other";
+              let senderName = "Anonymous";
+
+              if (message.userID === loggedInUser.userID) {
+                messageClass = "user";
+                senderName = "You";
+              }
+              else if (message.source === "AI") {
+                messageClass = "other";
+                senderName = "Anonymous";
+              }
+              messagesHTML += `
+                      <div class="message ${messageClass}">
+                        <div class="message-content">
+                          <strong>${senderName}</strong>: ${message.message}
+                        </div>
+                      </div>
+                    `;
+            });
+          } else {
+            messagesHTML = "<div>No messages available.</div>";
+          }
+
+          document.getElementById("messages").innerHTML = messagesHTML;
+          socket.emit("joinChatroom", chatroomId);
+          scrollToBottom();
+        })
+        .catch((error) => {
+          console.error("Error fetching chatroom data:", error);
+        });
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const imgContainer = document.createElement("div");
+          imgContainer.classList.add("image-preview-container");
+
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.classList.add("image-preview");
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "X";
+          deleteBtn.classList.add("delete-btn");
+          deleteBtn.onclick = function () {
+            imgContainer.remove();
+          };
+
+          imgContainer.appendChild(img);
+          imgContainer.appendChild(deleteBtn);
+
+          document
+            .getElementById("image-preview-container")
+            .appendChild(imgContainer);
+        };
+        reader.readAsDataURL(file);
+      }
+      const formData = new FormData();
+      formData.append("image", event.target.files[0]);
+      formData.append("chatroomId", currentChatroomId);
+      formData.append("userId", loggedInUser.userID);
+
+      fetch("/upload-image", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const imageMessageDiv = document.createElement("div");
+          imageMessageDiv.classList.add("message");
+          imageMessageDiv.innerHTML = `
+                        <div><strong>Anonymous</strong>: <img src="${data.imagePath}" alt="Image" width="200" /></div>
+                      `;
+          document.getElementById("messages").appendChild(imageMessageDiv);
+        })
+        .catch((error) => console.error("Error uploading image:", error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const sendBtn = document.getElementById("send-btn");
+    const messageInput = document.getElementById("message-input");
+    const imageInput = document.getElementById("image-input");
+
+    sendBtn.disabled = true;
+
+    function updateSendButtonState() {
+        const message = messageInput.value.trim();
+        const imageFile = imageInput?.files[0];
+        sendBtn.disabled = !(message || imageFile);
+    }
+
+    sendBtn.addEventListener("click", function () {
+        const message = messageInput.value.trim();
+        const imageFile = imageInput?.files[0];
+
+        if (message || imageFile) {
+            const messageData = {
+                message: message,
+                userId: loggedInUser.userID,
+                chatroomId: currentChatroomId,
+                image: imageFile || null,
+            };
+
+            socket.emit("sendMessage", messageData);
+
+            messageInput.value = '';
+            if (imageInput) imageInput.value = '';
+            updateSendButtonState();
+        } else {
+            alert("Please enter a message.");
+        }
+    });
+
+    messageInput.addEventListener("input", updateSendButtonState);
+
+    if (imageInput) {
+        imageInput.addEventListener("change", updateSendButtonState);
+    }
+
+    messageInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault(); // 防止換行
+            if (!sendBtn.disabled) {
+                sendBtn.click(); // 觸發發送按鈕
+            }
+        }
+    });
+});
+
+
+    socket.on("receiveMessage", (messageData) => {
+      messages.push(messageData);
+      checkAndGenerateAIResponses();
+      displayMessage(messageData);
+      scrollToBottom();
+    });
+
+    function scrollToBottom() {
+      const messagesContainer = document.getElementById("messages");
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    let messages = [];
+    let lastRespondedMessageId = null;
+
+    async function checkAndGenerateAIResponses() {
+      if (messages.length === 0) return;
+      const latestMessage = messages[messages.length - 1];
+      const { messageId, message, created_at } = latestMessage;
+
+      if (messageId === lastRespondedMessageId) return;
+
+      const currentTime = new Date();
+      const messageTime = new Date(created_at);
+
+      if (currentTime - messageTime > 15000) {
+        try {
+          const aiResponses = await generateAIResponses(message);
+          aiResponses.forEach(({ name, response }) => {
+            displayMessage({
+              message: response,
+              userId: "AI",
+            });
+          });
+          lastRespondedMessageId = messageId;
+        } catch (err) {
+          console.error("生成AI回應時發生錯誤:", err);
+          displayMessage({
+            message: "AI: 發生錯誤，但我會一直在這裡聽你說！",
+            userId: "AI",
+          });
+        }
+      }
+    }
+
+    async function generateAIResponses(message) {
+      if (!message) return [];
+
+      try {
+        const response = await fetch('http://localhost:11434/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama3.2:latest',
+            messages: [
+              { role: 'system', content: 'System message' },
+              { role: 'user', content: message }
+            ],
+            max_tokens: 150,
+            temperature: 0.7,
+            stream: true,
+          })
+        });
+
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const aiResponses = await response.json();
+        return aiResponses;
+      } catch (error) {
+        console.error('Error from server:', error);
+        return [{ name: "AI", response: "I'm here for you, and I care about how you're feeling. Talk to me." }];
+      }
+    }
+
+    let displayedMessages = [];
+
+    function displayMessage(messageData) {
+      const messagesContainer = document.getElementById("messages");
+
+      if (!messageData || !messageData.message || !messageData.userId) return;
+
+      const messageDiv = document.createElement("div");
+
+      let senderName;
+
+      if (messageData.userId === loggedInUser.userID) {
+        messageDiv.classList.add("message", "user");
+        senderName = "You";
+      } else if (messageData.source === "AI") {
+        messageDiv.classList.add("message", "other");
+        senderName = "Anonymous";
+      } else if (messageData.userId === "System") {
+        messageDiv.classList.add("message", "other");
+        senderName = "System";
+      } else {
+        messageDiv.classList.add("message", "other");
+        senderName = "Anonymous";
+      }
+
+      messageDiv.innerHTML = `
+    <div class="message-content">
+      <strong>${senderName}</strong>: ${messageData.message}
+    </div>
+  `;
+
+      messagesContainer.appendChild(messageDiv);
+
+      scrollToBottom();
+    }
+
+    function sendMessage() {
+      const messageInput = document.getElementById("message-input");
+      const messageText = messageInput.value;
+      if (messageText.trim() === '') return;
+
+      const newMessage = {
+        messageId: Date.now(),
+        message: messageText,
+        created_at: new Date().toISOString(),
+      };
+
+      messages.push(newMessage);
+      displayMessage('user-message', messageText);
+      messageInput.value = '';
+
+      checkAndGenerateAIResponses();
+    }
+
+    function closeChatroom() {
+      document.getElementById("chatroom").style.visibility = "hidden";
+    }
+
+    window.onload = function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const chatroomID = urlParams.get("chatroomID");
+      filterChatrooms('all');
+
+      if (chatroomID) {
+        displayChatroom(chatroomID);
+      } else {
+        console.error("No chatroom ID provided in URL.");
+      }
+    };
+
+  </script>
+</body>
+
+</html>
